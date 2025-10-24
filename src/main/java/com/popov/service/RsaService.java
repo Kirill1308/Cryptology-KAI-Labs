@@ -1,5 +1,6 @@
 package com.popov.service;
 
+import com.popov.service.crypto.CryptoService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -11,14 +12,24 @@ import java.nio.file.Path;
 
 @Slf4j
 @Service
-public class RsaService {
+public class RsaService implements CryptoService {
 
     public BigInteger calculatePrivateKey(BigInteger e, BigInteger p, BigInteger q) {
         BigInteger phi = p.subtract(BigInteger.ONE).multiply(q.subtract(BigInteger.ONE));
         return e.modInverse(phi);
     }
 
-    public void encryptFile(String inputPath, String outputPath, BigInteger e, BigInteger n) throws Exception {
+    @Override
+    public void encryptFile(String inputPath, String outputPath, Object... params) throws Exception {
+        if (params.length < 2) {
+            throw new IllegalArgumentException("RSA encryption requires: e, n");
+        }
+        BigInteger e = (BigInteger) params[0];
+        BigInteger n = (BigInteger) params[1];
+        encryptFileWithParams(inputPath, outputPath, e, n);
+    }
+
+    public void encryptFileWithParams(String inputPath, String outputPath, BigInteger e, BigInteger n) throws Exception {
         byte[] data = Files.readAllBytes(Path.of(inputPath));
         int blockSize = (n.bitLength() - 1) / 8;
         
@@ -39,7 +50,17 @@ public class RsaService {
         log.info("File encrypted successfully");
     }
 
-    public void decryptFile(String inputPath, String outputPath, BigInteger d, BigInteger n) throws Exception {
+    @Override
+    public void decryptFile(String inputPath, String outputPath, Object... params) throws Exception {
+        if (params.length < 2) {
+            throw new IllegalArgumentException("RSA decryption requires: d, n");
+        }
+        BigInteger d = (BigInteger) params[0];
+        BigInteger n = (BigInteger) params[1];
+        decryptFileWithParams(inputPath, outputPath, d, n);
+    }
+
+    public void decryptFileWithParams(String inputPath, String outputPath, BigInteger d, BigInteger n) throws Exception {
         try (DataInputStream dis = new DataInputStream(Files.newInputStream(Path.of(inputPath)));
              DataOutputStream dos = new DataOutputStream(Files.newOutputStream(Path.of(outputPath)))) {
             
@@ -62,5 +83,10 @@ public class RsaService {
             }
         }
         log.info("File decrypted successfully");
+    }
+    
+    @Override
+    public String getAlgorithmName() {
+        return "RSA";
     }
 }

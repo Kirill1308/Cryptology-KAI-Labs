@@ -1,0 +1,17 @@
+El-Gamal Parameters (Lab 2)
+===========================
+
+Test values (small for demonstration):
+Large prime (p): 467
+Primitive root (g): 2
+Private key (x): 153
+
+Calculated values:
+Public key = g^x mod p = 2^153 mod 467 = 166
+
+Larger prime example:
+Large prime (p): 2003
+Primitive root (g): 2
+Private key (x): 1234
+
+Note: For secure communication, use much larger primes (1024+ bits).
