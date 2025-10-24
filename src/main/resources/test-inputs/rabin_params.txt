@@ -1,11 +1,18 @@
 Rabin Parameters (Lab 3/4)
 ==========================
 
-Prime p (≡ 3 mod 4): 7
-Prime q (≡ 3 mod 4): 11
+Test values (small for demonstration):
+Prime p (≡ 3 mod 4): 59
+Prime q (≡ 3 mod 4): 103
 
 Calculated values:
-n = p * q = 77
+n = p * q = 6077
+
+Larger primes example:
+Prime p (≡ 3 mod 4): 1999
+Prime q (≡ 3 mod 4): 2003
+
+n = p * q = 4003997
 
 Note: For Rabin algorithm, p and q must be ≡ 3 (mod 4).
 Note: These are small primes for testing. Use larger primes in production.
