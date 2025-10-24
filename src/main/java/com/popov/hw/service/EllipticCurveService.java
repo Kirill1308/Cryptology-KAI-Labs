@@ -1,6 +1,6 @@
-package com.popov.service;
+package com.popov.hw.service;
 
-import com.popov.service.crypto.CryptoService;
+import com.popov.hw.service.crypto.CryptoService;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -23,9 +23,6 @@ public class EllipticCurveService implements CryptoService {
 
     private final SecureRandom random = new SecureRandom();
 
-    /**
-     * Represents a point on an elliptic curve
-     */
     @Data
     @AllArgsConstructor
     public static class ECPoint {
@@ -44,9 +41,6 @@ public class EllipticCurveService implements CryptoService {
         }
     }
 
-    /**
-     * Elliptic curve parameters
-     */
     @Data
     @AllArgsConstructor
     public static class ECParameters {
@@ -58,9 +52,10 @@ public class EllipticCurveService implements CryptoService {
 
     /**
      * Encrypts file using El-Gamal on Elliptic Curve
-     * @param inputPath path to input file
+     *
+     * @param inputPath  path to input file
      * @param outputPath path to output file
-     * @param params [0] = ECParameters, [1] = publicKey (ECPoint)
+     * @param params     [0] = ECParameters, [1] = publicKey (ECPoint)
      */
     @Override
     public void encryptFile(String inputPath, String outputPath, Object... params) throws Exception {
@@ -81,10 +76,10 @@ public class EllipticCurveService implements CryptoService {
                 System.arraycopy(data, i, block, 0, length);
 
                 BigInteger messageValue = new BigInteger(1, block);
-                
+
                 // Encode message as a point on the curve (simplified: use x-coordinate)
                 ECPoint messagePoint = new ECPoint(messageValue, BigInteger.ZERO);
-                
+
                 // Generate random k
                 BigInteger k = new BigInteger(curve.p.bitLength() - 1, random);
                 while (k.compareTo(BigInteger.ONE) <= 0) {
@@ -93,7 +88,7 @@ public class EllipticCurveService implements CryptoService {
 
                 // C1 = k*G
                 ECPoint c1 = multiplyPoint(curve.g, k, curve);
-                
+
                 // C2 = M + k*publicKey
                 ECPoint kPublicKey = multiplyPoint(publicKey, k, curve);
                 ECPoint c2 = addPoints(messagePoint, kPublicKey, curve);
@@ -108,9 +103,10 @@ public class EllipticCurveService implements CryptoService {
 
     /**
      * Decrypts file using El-Gamal on Elliptic Curve
-     * @param inputPath path to input file
+     *
+     * @param inputPath  path to input file
      * @param outputPath path to output file
-     * @param params [0] = ECParameters, [1] = privateKey (BigInteger)
+     * @param params     [0] = ECParameters, [1] = privateKey (BigInteger)
      */
     @Override
     public void decryptFile(String inputPath, String outputPath, Object... params) throws Exception {
@@ -127,7 +123,7 @@ public class EllipticCurveService implements CryptoService {
             while (dis.available() > 0) {
                 // Read C1
                 ECPoint c1 = readPoint(dis);
-                
+
                 // Read C2
                 ECPoint c2 = readPoint(dis);
 
@@ -261,15 +257,11 @@ public class EllipticCurveService implements CryptoService {
         return new ECPoint(x, y);
     }
 
-    @Override
-    public String getAlgorithmName() {
-        return "Elliptic Curve";
-    }
-
     /**
      * Calculates public key from private key
+     *
      * @param privateKey private key
-     * @param curve elliptic curve parameters
+     * @param curve      elliptic curve parameters
      * @return publicKey = privateKey * G
      */
     public ECPoint calculatePublicKey(BigInteger privateKey, ECParameters curve) {

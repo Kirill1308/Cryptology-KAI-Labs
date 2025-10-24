@@ -1,6 +1,6 @@
-package com.popov.service;
+package com.popov.hw.service;
 
-import com.popov.service.crypto.CryptoService;
+import com.popov.hw.service.crypto.CryptoService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -11,10 +11,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.SecureRandom;
 
-/**
- * El-Gamal encryption/decryption service
- * Based on discrete logarithm problem
- */
 @Slf4j
 @Service
 public class ElGamalService implements CryptoService {
@@ -23,9 +19,10 @@ public class ElGamalService implements CryptoService {
 
     /**
      * Encrypts file using El-Gamal algorithm
-     * @param inputPath path to input file
+     *
+     * @param inputPath  path to input file
      * @param outputPath path to output file
-     * @param params [0] = p (large prime), [1] = g (primitive root), [2] = publicKey (g^x mod p)
+     * @param params     [0] = p (large prime), [1] = g (primitive root), [2] = publicKey (g^x mod p)
      */
     @Override
     public void encryptFile(String inputPath, String outputPath, Object... params) throws Exception {
@@ -76,9 +73,10 @@ public class ElGamalService implements CryptoService {
 
     /**
      * Decrypts file using El-Gamal algorithm
-     * @param inputPath path to input file
+     *
+     * @param inputPath  path to input file
      * @param outputPath path to output file
-     * @param params [0] = p (large prime), [1] = privateKey (x)
+     * @param params     [0] = p (large prime), [1] = privateKey (x)
      */
     @Override
     public void decryptFile(String inputPath, String outputPath, Object... params) throws Exception {
@@ -125,13 +123,9 @@ public class ElGamalService implements CryptoService {
         log.info("File decrypted successfully using El-Gamal");
     }
 
-    @Override
-    public String getAlgorithmName() {
-        return "El-Gamal";
-    }
-
     /**
      * Calculates public key from private key
+     *
      * @param g primitive root
      * @param x private key
      * @param p large prime

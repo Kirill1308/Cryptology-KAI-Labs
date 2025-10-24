@@ -1,6 +1,6 @@
-package com.popov.service;
+package com.popov.hw.service;
 
-import com.popov.service.crypto.CryptoService;
+import com.popov.hw.service.crypto.CryptoService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -10,19 +10,16 @@ import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-/**
- * Rabin encryption/decryption service
- * Based on the difficulty of factorization
- */
 @Slf4j
 @Service
 public class RabinService implements CryptoService {
 
     /**
      * Encrypts file using Rabin algorithm
-     * @param inputPath path to input file
+     *
+     * @param inputPath  path to input file
      * @param outputPath path to output file
-     * @param params [0] = n (n = p * q)
+     * @param params     [0] = n (n = p * q)
      */
     @Override
     public void encryptFile(String inputPath, String outputPath, Object... params) throws Exception {
@@ -56,9 +53,10 @@ public class RabinService implements CryptoService {
 
     /**
      * Decrypts file using Rabin algorithm
-     * @param inputPath path to input file
+     *
+     * @param inputPath  path to input file
      * @param outputPath path to output file
-     * @param params [0] = p, [1] = q (prime factors of n)
+     * @param params     [0] = p, [1] = q (prime factors of n)
      */
     @Override
     public void decryptFile(String inputPath, String outputPath, Object... params) throws Exception {
@@ -150,8 +148,4 @@ public class RabinService implements CryptoService {
         return new BigInteger[]{gcd, x, y};
     }
 
-    @Override
-    public String getAlgorithmName() {
-        return "Rabin";
-    }
 }

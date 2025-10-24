@@ -1,6 +1,6 @@
-package com.popov.service;
+package com.popov.hw.service;
 
-import com.popov.service.crypto.CryptoService;
+import com.popov.hw.service.crypto.CryptoService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -11,10 +11,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.SecureRandom;
 
-/**
- * Shamir's three-pass protocol implementation
- * Allows secure communication without pre-shared keys
- */
 @Slf4j
 @Service
 public class ShamirService implements CryptoService {
@@ -24,9 +20,10 @@ public class ShamirService implements CryptoService {
     /**
      * Encrypts file using Shamir's protocol (sender's perspective)
      * This is a simplified version that stores intermediate values
-     * @param inputPath path to input file
+     *
+     * @param inputPath  path to input file
      * @param outputPath path to output file
-     * @param params [0] = p (large prime), [1] = cA (sender's encryption key), [2] = dA (sender's decryption key)
+     * @param params     [0] = p (large prime), [1] = cA (sender's encryption key), [2] = dA (sender's decryption key)
      */
     @Override
     public void encryptFile(String inputPath, String outputPath, Object... params) throws Exception {
@@ -62,9 +59,10 @@ public class ShamirService implements CryptoService {
 
     /**
      * Decrypts file using Shamir's protocol (final step)
-     * @param inputPath path to input file
+     *
+     * @param inputPath  path to input file
      * @param outputPath path to output file
-     * @param params [0] = p (large prime), [1] = dA (sender's decryption key)
+     * @param params     [0] = p (large prime), [1] = dA (sender's decryption key)
      */
     @Override
     public void decryptFile(String inputPath, String outputPath, Object... params) throws Exception {
@@ -104,11 +102,12 @@ public class ShamirService implements CryptoService {
 
     /**
      * Intermediate step - receiver's encryption (Step 2)
-     * @param inputPath path to input file
+     *
+     * @param inputPath  path to input file
      * @param outputPath path to output file
-     * @param p large prime
-     * @param cB receiver's encryption key
-     * @param dB receiver's decryption key
+     * @param p          large prime
+     * @param cB         receiver's encryption key
+     * @param dB         receiver's decryption key
      */
     public void receiverProcess(String inputPath, String outputPath, BigInteger p, BigInteger cB, BigInteger dB) throws Exception {
         try (DataInputStream dis = new DataInputStream(Files.newInputStream(Path.of(inputPath)));
@@ -133,13 +132,9 @@ public class ShamirService implements CryptoService {
         log.info("Receiver processing completed (Steps 2 and combined)");
     }
 
-    @Override
-    public String getAlgorithmName() {
-        return "Shamir";
-    }
-
     /**
      * Generates encryption and decryption key pair
+     *
      * @param p large prime
      * @return array [c, d] where c*d ≡ 1 (mod p-1)
      */
