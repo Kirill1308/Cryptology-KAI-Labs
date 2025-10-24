@@ -1,0 +1,11 @@
+El-Gamal Parameters (Lab 2)
+===========================
+
+Large prime (p): 23
+Primitive root (g): 5
+Private key (x): 6
+
+Calculated values:
+Public key = g^x mod p = 5^6 mod 23 = 8
+
+Note: These are small values for testing. Use larger primes in production.

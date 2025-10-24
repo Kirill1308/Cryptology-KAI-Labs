@@ -1,0 +1,13 @@
+RSA Parameters (Lab 1)
+======================
+
+Public key (e): 65537
+Prime p: 61
+Prime q: 53
+
+Calculated values:
+n = p * q = 3233
+φ(n) = (p-1)(q-1) = 3120
+Private key (d) = e^(-1) mod φ(n) = 2753
+
+Note: These are small primes for testing. Use larger primes in production.

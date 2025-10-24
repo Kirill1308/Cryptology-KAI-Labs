@@ -1,0 +1,14 @@
+Elliptic Curve Parameters (Lab 4)
+==================================
+
+Standard curve from lab specification:
+p = 751
+a = -1
+b = 1
+Equation: y² = x³ - x + 1 (mod 751)
+Generator point G = (0, 1)
+
+Private key example: 17
+
+Calculated values:
+Public key = privateKey * G

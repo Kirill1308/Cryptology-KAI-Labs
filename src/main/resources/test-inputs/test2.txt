@@ -1,0 +1,2 @@
+Cryptology is the study of codes and ciphers.
+It includes both cryptography (making codes) and cryptanalysis (breaking codes).
