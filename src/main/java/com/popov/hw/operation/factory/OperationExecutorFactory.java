@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 @Component
 public class OperationExecutorFactory {
 
-    private final Map<String, CryptographicOperationExecutor> executorMap;
+    private final Map<CryptoAlgorithm, CryptographicOperationExecutor> executorMap;
 
     public OperationExecutorFactory(List<CryptographicOperationExecutor> executors) {
         this.executorMap = executors.stream()
@@ -23,7 +23,7 @@ public class OperationExecutorFactory {
     }
 
     public CryptographicOperationExecutor getExecutor(CryptoAlgorithm algorithm) {
-        CryptographicOperationExecutor executor = executorMap.get(algorithm.name());
+        CryptographicOperationExecutor executor = executorMap.get(algorithm);
         if (executor == null) {
             throw new IllegalArgumentException("No operation executor found for algorithm: " + algorithm);
         }
