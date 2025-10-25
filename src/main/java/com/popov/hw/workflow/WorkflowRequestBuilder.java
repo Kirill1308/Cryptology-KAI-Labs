@@ -1,6 +1,6 @@
 package com.popov.hw.workflow;
 
-import com.popov.hw.input.factory.InputHandlerFactory;
+import com.popov.hw.input.ParameterCollectorFactory;
 import com.popov.hw.ui.UserInterface;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -10,25 +10,23 @@ import org.springframework.stereotype.Component;
 public class WorkflowRequestBuilder {
 
     private final UserInterface userInterface;
-    private final InputHandlerFactory inputHandlerFactory;
+    private final ParameterCollectorFactory collectorFactory;
 
-    public CryptographyWorkflowRequest buildRequest() {
-        // Get algorithm selection
-        userInterface.displayAlgorithmMenu();
-        var algorithm = userInterface.getAlgorithmSelection();
+    public WorkflowRequest build() {
+        var algorithm = userInterface.selectAlgorithm();
+        var operation = userInterface.selectOperation();
+        var inputFile = userInterface.getInputFilePath();
+        var outputFile = userInterface.getOutputFilePath();
 
-        // Get file paths
-        String[] filePaths = userInterface.getFilePaths();
-        String inputFile = filePaths[0];
-        String outputFile = filePaths[1];
+        var collector = collectorFactory.getCollector(algorithm);
+        var parameters = collector.collectParameters(userInterface);
 
-        // Get cipher operation
-        var operation = userInterface.getCipherOperation();
-
-        // Get algorithm-specific parameters
-        var inputHandler = inputHandlerFactory.getHandler(algorithm);
-        var parameters = inputHandler.collectParameters(userInterface);
-
-        return new CryptographyWorkflowRequest(algorithm, operation, inputFile, outputFile, parameters);
+        return WorkflowRequest.builder()
+                .algorithm(algorithm)
+                .operation(operation)
+                .inputFilePath(inputFile)
+                .outputFilePath(outputFile)
+                .parameters(parameters)
+                .build();
     }
 }

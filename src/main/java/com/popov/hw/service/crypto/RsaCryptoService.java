@@ -1,6 +1,6 @@
-package com.popov.hw.service;
+package com.popov.hw.service.crypto;
 
-import com.popov.hw.service.crypto.CryptoService;
+import com.popov.hw.model.RsaParameters;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -12,24 +12,21 @@ import java.nio.file.Path;
 
 @Slf4j
 @Service
-public class RsaService implements CryptoService {
+public class RsaCryptoService implements CryptoService {
 
-    public BigInteger calculatePrivateKey(BigInteger e, BigInteger p, BigInteger q) {
-        BigInteger phi = p.subtract(BigInteger.ONE).multiply(q.subtract(BigInteger.ONE));
-        return e.modInverse(phi);
+    @Override
+    public void encrypt(String inputPath, String outputPath, Object parameters) throws Exception {
+        RsaParameters params = (RsaParameters) parameters;
+        encryptFile(inputPath, outputPath, params.e(), params.n());
     }
 
     @Override
-    public void encryptFile(String inputPath, String outputPath, Object... params) throws Exception {
-        if (params.length < 2) {
-            throw new IllegalArgumentException("RSA encryption requires: e, n");
-        }
-        BigInteger e = (BigInteger) params[0];
-        BigInteger n = (BigInteger) params[1];
-        encryptFileWithParams(inputPath, outputPath, e, n);
+    public void decrypt(String inputPath, String outputPath, Object parameters) throws Exception {
+        RsaParameters params = (RsaParameters) parameters;
+        decryptFile(inputPath, outputPath, params.d(), params.n());
     }
 
-    public void encryptFileWithParams(String inputPath, String outputPath, BigInteger e, BigInteger n) throws Exception {
+    private void encryptFile(String inputPath, String outputPath, BigInteger e, BigInteger n) throws Exception {
         byte[] data = Files.readAllBytes(Path.of(inputPath));
         int blockSize = (n.bitLength() - 1) / 8;
 
@@ -47,20 +44,10 @@ public class RsaService implements CryptoService {
                 dos.write(encryptedBytes);
             }
         }
-        log.info("File encrypted successfully");
+        log.info("RSA encryption completed");
     }
 
-    @Override
-    public void decryptFile(String inputPath, String outputPath, Object... params) throws Exception {
-        if (params.length < 2) {
-            throw new IllegalArgumentException("RSA decryption requires: d, n");
-        }
-        BigInteger d = (BigInteger) params[0];
-        BigInteger n = (BigInteger) params[1];
-        decryptFileWithParams(inputPath, outputPath, d, n);
-    }
-
-    public void decryptFileWithParams(String inputPath, String outputPath, BigInteger d, BigInteger n) throws Exception {
+    private void decryptFile(String inputPath, String outputPath, BigInteger d, BigInteger n) throws Exception {
         try (DataInputStream dis = new DataInputStream(Files.newInputStream(Path.of(inputPath)));
              DataOutputStream dos = new DataOutputStream(Files.newOutputStream(Path.of(outputPath)))) {
 
@@ -82,6 +69,6 @@ public class RsaService implements CryptoService {
                 dos.write(result);
             }
         }
-        log.info("File decrypted successfully");
+        log.info("RSA decryption completed");
     }
 }

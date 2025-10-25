@@ -1,48 +1,39 @@
 package com.popov.hw.operation.impl;
 
+import com.popov.hw.enums.CipherOperation;
 import com.popov.hw.enums.CryptoAlgorithm;
-import com.popov.hw.model.CryptoParameters.ElGamalParameters;
-import com.popov.hw.operation.CryptographicOperationExecutor;
-import com.popov.hw.service.ElGamalService;
-import com.popov.hw.workflow.CryptographyWorkflowRequest;
+import com.popov.hw.exception.CryptoOperationException;
+import com.popov.hw.i18n.MessageService;
+import com.popov.hw.operation.OperationExecutor;
+import com.popov.hw.service.crypto.ElGamalCryptoService;
+import com.popov.hw.workflow.WorkflowRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import static com.popov.hw.enums.CryptoAlgorithm.EL_GAMAL;
-
 @Component
 @RequiredArgsConstructor
-public class ElGamalOperationExecutor implements CryptographicOperationExecutor {
+public class ElGamalOperationExecutor implements OperationExecutor {
 
-    private final ElGamalService elGamalService;
+    private final ElGamalCryptoService cryptoService;
+    private final MessageService messageService;
 
     @Override
-    public void execute(CryptographyWorkflowRequest request) {
-        var params = (ElGamalParameters) request.parameters();
-
+    public void execute(WorkflowRequest request) {
         try {
-            switch (request.operation()) {
-                case ENCRYPT -> elGamalService.encryptFile(
-                        request.inputFilePath(),
-                        request.outputFilePath(),
-                        params.p(),
-                        params.g(),
-                        params.publicKey()
-                );
-                case DECRYPT -> elGamalService.decryptFile(
-                        request.inputFilePath(),
-                        request.outputFilePath(),
-                        params.p(),
-                        params.x()
-                );
+            if (request.operation() == CipherOperation.ENCRYPT) {
+                cryptoService.encrypt(request.inputFilePath(), request.outputFilePath(), request.parameters());
+            } else {
+                cryptoService.decrypt(request.inputFilePath(), request.outputFilePath(), request.parameters());
             }
         } catch (Exception e) {
-            throw new RuntimeException("El-Gamal operation failed: " + e.getMessage(), e);
+            throw new CryptoOperationException(
+                    messageService.getOperationFailedError("ElGamal", e.getMessage()), e);
         }
     }
 
     @Override
     public CryptoAlgorithm getSupportedAlgorithm() {
-        return EL_GAMAL;
+        return CryptoAlgorithm.EL_GAMAL;
     }
 }
+

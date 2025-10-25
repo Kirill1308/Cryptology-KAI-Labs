@@ -12,11 +12,12 @@ public enum CipherOperation {
     private final String operation;
 
     public static CipherOperation fromString(String input) {
+        String normalized = input.trim().toLowerCase();
         for (CipherOperation operation : values()) {
-            if (operation.operation.equalsIgnoreCase(input.trim())) {
+            if (operation.operation.equalsIgnoreCase(normalized)) {
                 return operation;
             }
         }
-        throw new IllegalArgumentException("Invalid cipher operation: " + input + ". Use 'encrypt' or 'decrypt'");
+        throw new IllegalArgumentException("error.invalid.operation");
     }
 }

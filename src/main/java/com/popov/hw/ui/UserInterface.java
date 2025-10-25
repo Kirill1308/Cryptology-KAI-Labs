@@ -5,21 +5,21 @@ import com.popov.hw.enums.CryptoAlgorithm;
 
 public interface UserInterface {
 
-    void displayAlgorithmMenu();
+    CryptoAlgorithm selectAlgorithm();
 
-    CryptoAlgorithm getAlgorithmSelection();
+    CipherOperation selectOperation();
 
-    CipherOperation getCipherOperation();
+    String getInputFilePath();
 
-    String[] getFilePaths();
+    String getOutputFilePath();
+
+    String promptInput(String messageKey, Object... args);
+
+    void displayInfo(String messageKey, Object... args);
 
     void displayError(String message);
 
-    void displaySuccess(String message);
-
-    void displayInfo(String message);
-
-    String getInput(String prompt);
+    void displaySuccess();
 
     void close();
 }

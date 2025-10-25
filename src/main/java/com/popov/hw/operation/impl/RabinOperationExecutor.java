@@ -1,46 +1,39 @@
 package com.popov.hw.operation.impl;
 
+import com.popov.hw.enums.CipherOperation;
 import com.popov.hw.enums.CryptoAlgorithm;
-import com.popov.hw.operation.CryptographicOperationExecutor;
-import com.popov.hw.service.RabinService;
-import com.popov.hw.workflow.CryptographyWorkflowRequest;
+import com.popov.hw.exception.CryptoOperationException;
+import com.popov.hw.i18n.MessageService;
+import com.popov.hw.operation.OperationExecutor;
+import com.popov.hw.service.crypto.RabinCryptoService;
+import com.popov.hw.workflow.WorkflowRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import static com.popov.hw.enums.CryptoAlgorithm.RABIN;
-import static com.popov.hw.model.CryptoParameters.RabinParameters;
-
 @Component
 @RequiredArgsConstructor
-public class RabinOperationExecutor implements CryptographicOperationExecutor {
+public class RabinOperationExecutor implements OperationExecutor {
 
-    private final RabinService rabinService;
+    private final RabinCryptoService cryptoService;
+    private final MessageService messageService;
 
     @Override
-    public void execute(CryptographyWorkflowRequest request) {
-        var params = (RabinParameters) request.parameters();
-
+    public void execute(WorkflowRequest request) {
         try {
-            switch (request.operation()) {
-                case ENCRYPT -> rabinService.encryptFile(
-                        request.inputFilePath(),
-                        request.outputFilePath(),
-                        params.n()
-                );
-                case DECRYPT -> rabinService.decryptFile(
-                        request.inputFilePath(),
-                        request.outputFilePath(),
-                        params.p(),
-                        params.q()
-                );
+            if (request.operation() == CipherOperation.ENCRYPT) {
+                cryptoService.encrypt(request.inputFilePath(), request.outputFilePath(), request.parameters());
+            } else {
+                cryptoService.decrypt(request.inputFilePath(), request.outputFilePath(), request.parameters());
             }
         } catch (Exception e) {
-            throw new RuntimeException("Rabin operation failed: " + e.getMessage(), e);
+            throw new CryptoOperationException(
+                    messageService.getOperationFailedError("Rabin", e.getMessage()), e);
         }
     }
 
     @Override
     public CryptoAlgorithm getSupportedAlgorithm() {
-        return RABIN;
+        return CryptoAlgorithm.RABIN;
     }
 }
+

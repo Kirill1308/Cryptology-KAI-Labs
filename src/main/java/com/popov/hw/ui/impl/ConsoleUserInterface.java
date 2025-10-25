@@ -2,88 +2,104 @@ package com.popov.hw.ui.impl;
 
 import com.popov.hw.enums.CipherOperation;
 import com.popov.hw.enums.CryptoAlgorithm;
+import com.popov.hw.exception.InvalidInputException;
+import com.popov.hw.i18n.MessageService;
 import com.popov.hw.ui.UserInterface;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.Scanner;
-import java.util.function.Supplier;
 
 @Component
+@RequiredArgsConstructor
 public class ConsoleUserInterface implements UserInterface {
 
-    private final Scanner scanner;
-    private final Supplier<String> inputSupplier;
-
-    public ConsoleUserInterface() {
-        this.scanner = new Scanner(System.in);
-        this.inputSupplier = scanner::nextLine;
-    }
+    private final MessageService messageService;
+    private final Scanner scanner = new Scanner(System.in);
 
     @Override
-    public void displayAlgorithmMenu() {
-        System.out.println("=== Cryptology Labs ===");
-        System.out.println("Select lab:");
-        for (CryptoAlgorithm algorithm : CryptoAlgorithm.values()) {
-            System.out.println(algorithm.getNumber() + ". " + algorithm.getDisplayName());
+    public CryptoAlgorithm selectAlgorithm() {
+        displayAlgorithmMenu();
+        System.out.print(messageService.getEnterLabNumberPrompt());
+        String input = scanner.nextLine().trim();
+
+        try {
+            int number = Integer.parseInt(input);
+            return CryptoAlgorithm.fromNumber(number);
+        } catch (NumberFormatException e) {
+            throw new InvalidInputException(messageService.getMessage("error.invalid.lab.number", input));
         }
     }
 
     @Override
-    public CryptoAlgorithm getAlgorithmSelection() {
-        System.out.print("Enter lab number: ");
-        String input = inputSupplier.get();
-        return CryptoAlgorithm.fromString(input);
+    public CipherOperation selectOperation() {
+        System.out.print(messageService.getEnterOperationPrompt());
+        String input = scanner.nextLine();
+
+        try {
+            return CipherOperation.fromString(input);
+        } catch (IllegalArgumentException e) {
+            throw new InvalidInputException(messageService.getInvalidOperationError(input));
+        }
     }
 
     @Override
-    public CipherOperation getCipherOperation() {
-        System.out.print("Enter cipher type (encrypt/decrypt): ");
-        String input = inputSupplier.get();
-        return CipherOperation.fromString(input);
+    public String getInputFilePath() {
+        System.out.print(messageService.getEnterInputFilePrompt());
+        String path = scanner.nextLine().trim();
+
+        if (path.isEmpty()) {
+            throw new InvalidInputException(messageService.getMessage("error.empty.input.file"));
+        }
+
+        return path;
     }
 
     @Override
-    public String[] getFilePaths() {
-        System.out.print("Enter input file path: ");
-        String inputFile = inputSupplier.get();
+    public String getOutputFilePath() {
+        System.out.print(messageService.getEnterOutputFilePrompt());
+        String path = scanner.nextLine().trim();
 
-        if (inputFile == null || inputFile.trim().isEmpty()) {
-            throw new IllegalArgumentException("Input file path cannot be empty");
+        if (path.isEmpty()) {
+            throw new InvalidInputException(messageService.getMessage("error.empty.output.file"));
         }
 
-        System.out.print("Enter output file path: ");
-        String outputFile = inputSupplier.get();
+        return path;
+    }
 
-        if (outputFile == null || outputFile.trim().isEmpty()) {
-            throw new IllegalArgumentException("Output file path cannot be empty");
-        }
+    @Override
+    public String promptInput(String messageKey, Object... args) {
+        System.out.print(messageService.getMessage(messageKey, args));
+        return scanner.nextLine().trim();
+    }
 
-        return new String[]{inputFile, outputFile};
+    @Override
+    public void displayInfo(String messageKey, Object... args) {
+        System.out.println(messageService.getMessage(messageKey, args));
     }
 
     @Override
     public void displayError(String message) {
-        System.err.println("Error: " + message);
+        System.err.println(messageService.getErrorMessage(message));
     }
 
     @Override
-    public void displaySuccess(String message) {
-        System.out.println("Success: " + message);
-    }
-
-    @Override
-    public void displayInfo(String message) {
-        System.out.println(message);
-    }
-
-    @Override
-    public String getInput(String prompt) {
-        System.out.print(prompt);
-        return inputSupplier.get();
+    public void displaySuccess() {
+        System.out.println(messageService.getSuccessMessage());
     }
 
     @Override
     public void close() {
         scanner.close();
+    }
+
+    private void displayAlgorithmMenu() {
+        System.out.println("=== " + messageService.getAppTitle() + " ===");
+        System.out.println(messageService.getSelectLabMessage());
+
+        for (CryptoAlgorithm algorithm : CryptoAlgorithm.values()) {
+            String name = messageService.getMessage("algorithm." + algorithm.getMessageKey());
+            System.out.println(algorithm.getNumber() + ". " + name);
+        }
     }
 }

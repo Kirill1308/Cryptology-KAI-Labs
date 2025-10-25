@@ -1,47 +1,38 @@
 package com.popov.hw.operation.impl;
 
+import com.popov.hw.enums.CipherOperation;
 import com.popov.hw.enums.CryptoAlgorithm;
-import com.popov.hw.operation.CryptographicOperationExecutor;
-import com.popov.hw.service.EllipticCurveService;
-import com.popov.hw.workflow.CryptographyWorkflowRequest;
+import com.popov.hw.exception.CryptoOperationException;
+import com.popov.hw.i18n.MessageService;
+import com.popov.hw.operation.OperationExecutor;
+import com.popov.hw.service.crypto.EllipticCurveCryptoService;
+import com.popov.hw.workflow.WorkflowRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import static com.popov.hw.enums.CryptoAlgorithm.ELLIPTIC_CURVE;
-import static com.popov.hw.model.CryptoParameters.EllipticCurveParameters;
-
 @Component
 @RequiredArgsConstructor
-public class EllipticCurveOperationExecutor implements CryptographicOperationExecutor {
+public class EllipticCurveOperationExecutor implements OperationExecutor {
 
-    private final EllipticCurveService ellipticCurveService;
+    private final EllipticCurveCryptoService cryptoService;
+    private final MessageService messageService;
 
     @Override
-    public void execute(CryptographyWorkflowRequest request) {
-        var params = (EllipticCurveParameters) request.parameters();
-
+    public void execute(WorkflowRequest request) {
         try {
-            switch (request.operation()) {
-                case ENCRYPT -> ellipticCurveService.encryptFile(
-                        request.inputFilePath(),
-                        request.outputFilePath(),
-                        (EllipticCurveService.ECParameters) params.curve(),
-                        (EllipticCurveService.ECPoint) params.publicKey()
-                );
-                case DECRYPT -> ellipticCurveService.decryptFile(
-                        request.inputFilePath(),
-                        request.outputFilePath(),
-                        (EllipticCurveService.ECParameters) params.curve(),
-                        params.privateKey()
-                );
+            if (request.operation() == CipherOperation.ENCRYPT) {
+                cryptoService.encrypt(request.inputFilePath(), request.outputFilePath(), request.parameters());
+            } else {
+                cryptoService.decrypt(request.inputFilePath(), request.outputFilePath(), request.parameters());
             }
         } catch (Exception e) {
-            throw new RuntimeException("Elliptic Curve operation failed: " + e.getMessage(), e);
+            throw new CryptoOperationException(
+                    messageService.getOperationFailedError("Elliptic Curve", e.getMessage()), e);
         }
     }
 
     @Override
     public CryptoAlgorithm getSupportedAlgorithm() {
-        return ELLIPTIC_CURVE;
+        return CryptoAlgorithm.ELLIPTIC_CURVE;
     }
 }

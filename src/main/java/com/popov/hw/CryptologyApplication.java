@@ -18,6 +18,6 @@ public class CryptologyApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        coordinator.execute();
+        coordinator.run();
     }
 }

@@ -1,48 +1,39 @@
 package com.popov.hw.operation.impl;
 
+import com.popov.hw.enums.CipherOperation;
 import com.popov.hw.enums.CryptoAlgorithm;
-import com.popov.hw.model.CryptoParameters.ShamirParameters;
-import com.popov.hw.operation.CryptographicOperationExecutor;
-import com.popov.hw.service.ShamirService;
-import com.popov.hw.workflow.CryptographyWorkflowRequest;
+import com.popov.hw.exception.CryptoOperationException;
+import com.popov.hw.i18n.MessageService;
+import com.popov.hw.operation.OperationExecutor;
+import com.popov.hw.service.crypto.ShamirCryptoService;
+import com.popov.hw.workflow.WorkflowRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import static com.popov.hw.enums.CryptoAlgorithm.SHAMIR;
-
 @Component
 @RequiredArgsConstructor
-public class ShamirOperationExecutor implements CryptographicOperationExecutor {
+public class ShamirOperationExecutor implements OperationExecutor {
 
-    private final ShamirService shamirService;
+    private final ShamirCryptoService cryptoService;
+    private final MessageService messageService;
 
     @Override
-    public void execute(CryptographyWorkflowRequest request) {
-        var params = (ShamirParameters) request.parameters();
-
+    public void execute(WorkflowRequest request) {
         try {
-            switch (request.operation()) {
-                case ENCRYPT -> shamirService.encryptFile(
-                        request.inputFilePath(),
-                        request.outputFilePath(),
-                        params.p(),
-                        params.keyPair()[0],
-                        params.keyPair()[1]
-                );
-                case DECRYPT -> shamirService.decryptFile(
-                        request.inputFilePath(),
-                        request.outputFilePath(),
-                        params.p(),
-                        params.keyPair()[1]
-                );
+            if (request.operation() == CipherOperation.ENCRYPT) {
+                cryptoService.encrypt(request.inputFilePath(), request.outputFilePath(), request.parameters());
+            } else {
+                cryptoService.decrypt(request.inputFilePath(), request.outputFilePath(), request.parameters());
             }
         } catch (Exception e) {
-            throw new RuntimeException("Shamir operation failed: " + e.getMessage(), e);
+            throw new CryptoOperationException(
+                    messageService.getOperationFailedError("Shamir", e.getMessage()), e);
         }
     }
 
     @Override
     public CryptoAlgorithm getSupportedAlgorithm() {
-        return SHAMIR;
+        return CryptoAlgorithm.SHAMIR;
     }
 }
+
