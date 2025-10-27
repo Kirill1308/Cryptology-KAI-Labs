@@ -20,7 +20,6 @@ public class ApplicationCoordinator {
 
     public void run() {
         try {
-            userInterface.displaySuccess();
             var request = requestBuilder.build();
             workflowExecutor.execute(request);
             userInterface.displaySuccess();

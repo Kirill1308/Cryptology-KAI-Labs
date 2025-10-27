@@ -11,7 +11,15 @@ import java.util.Locale;
 public class MessageService {
 
     private final MessageSource messageSource;
-    private final Locale locale = Locale.ENGLISH;
+    private Locale locale = Locale.ENGLISH;
+
+    public void setLocale(Locale locale) {
+        this.locale = locale;
+    }
+
+    public Locale getLocale() {
+        return this.locale;
+    }
 
     public String getMessage(String key, Object... args) {
         return messageSource.getMessage(key, args, locale);
